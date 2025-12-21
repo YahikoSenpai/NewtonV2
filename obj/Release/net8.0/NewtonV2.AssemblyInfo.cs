@@ -12,9 +12,9 @@ using System;
 using System.Reflection;
 
 [assembly: System.Reflection.AssemblyCompanyAttribute("NewtonV2")]
-[assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
+[assembly: System.Reflection.AssemblyConfigurationAttribute("Release")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+cf834f56a2ffcc8aaaaee416ccd5865ded17a4f4")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+5f0f43ea8ed40be08699d4e9583014d94e02d250")]
 [assembly: System.Reflection.AssemblyProductAttribute("NewtonV2")]
 [assembly: System.Reflection.AssemblyTitleAttribute("NewtonV2")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]

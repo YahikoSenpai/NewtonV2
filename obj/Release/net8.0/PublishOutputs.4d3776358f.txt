@@ -1,0 +1,11 @@
+D:\Local_projects\NewtonV2\bin\Release\net8.0\publish\NewtonV2.exe
+D:\Local_projects\NewtonV2\bin\Release\net8.0\publish\NewtonV2.dll
+D:\Local_projects\NewtonV2\bin\Release\net8.0\publish\NewtonV2.deps.json
+D:\Local_projects\NewtonV2\bin\Release\net8.0\publish\NewtonV2.runtimeconfig.json
+D:\Local_projects\NewtonV2\bin\Release\net8.0\publish\NewtonV2.pdb
+D:\Local_projects\NewtonV2\bin\Release\net8.0\publish\AngouriMath.dll
+D:\Local_projects\NewtonV2\bin\Release\net8.0\publish\Antlr4.Runtime.Standard.dll
+D:\Local_projects\NewtonV2\bin\Release\net8.0\publish\GenericTensor.dll
+D:\Local_projects\NewtonV2\bin\Release\net8.0\publish\HonkSharp.dll
+D:\Local_projects\NewtonV2\bin\Release\net8.0\publish\Numbers.dll
+D:\Local_projects\NewtonV2\bin\Release\net8.0\publish\SixLabors.ImageSharp.dll

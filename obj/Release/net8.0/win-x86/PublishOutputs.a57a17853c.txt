@@ -1,0 +1,2 @@
+D:\Local_projects\NewtonV2\bin\Release\net8.0\publish\win-x86\NewtonV2.pdb
+D:\Local_projects\NewtonV2\bin\Release\net8.0\publish\win-x86\NewtonV2.exe
