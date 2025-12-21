@@ -14,7 +14,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("NewtonV2")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Release")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+5f0f43ea8ed40be08699d4e9583014d94e02d250")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+ddba6e5f1c2c8ee116e094cf375ee5e978a38001")]
 [assembly: System.Reflection.AssemblyProductAttribute("NewtonV2")]
 [assembly: System.Reflection.AssemblyTitleAttribute("NewtonV2")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]

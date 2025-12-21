@@ -14,9 +14,9 @@ class Program
     static void Main(string[] args) {
 
         var programRuntime = Stopwatch.StartNew();
-        string expression_input = "";
-        string resInput = "";
-        int maxIter = 20;
+        string expression_input;
+        string resInput;
+        int maxIter;
         double xmin = -2, xmax = 2;
         double ymin = -2, ymax = 2;
 
