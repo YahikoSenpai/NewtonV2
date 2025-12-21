@@ -1,7 +1,7 @@
 # NewtonV2 — Newton Fractal Renderer
 
 ## Usage
-NewtonV2.exe "<expression>" <resolution> <maxIteration> [xmin xmax ymin ymax]
+NewtonV2.exe `"<expression>"` `<resolution>` `<maxIteration>` [xmin xmax ymin ymax]
 
 ---
 
