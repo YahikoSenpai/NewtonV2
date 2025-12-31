@@ -14,64 +14,94 @@ class Program
     static void Main(string[] args) {
 
         var programRuntime = Stopwatch.StartNew();
-        string expression_input;
-        string resInput;
-        int maxIter;
+        string expression_input = "";
         double xmin = -2, xmax = 2;
         double ymin = -2, ymax = 2;
+        string fileOutPath = "";
+        int width = 0, height = 0, maxIter = 5;
 
-        // Need at least 3 arguments
-        if (args.Length < 3)
+        // Parse flags
+        for (int i = 0; i < args.Length; i++)
         {
-            ShowHelp();
+            switch (args[i])
+            {
+                case "--expr":
+                    expression_input = args[++i];
+                    break;
+
+                case "--res":
+                    if (!TryParseResolution(args[++i], out width, out height))
+                    {
+                        WriteLine("Error: resolution must be WIDTHxHEIGHT, e.g. 1920x1080");
+                        ShowHelp();
+                    }
+                    break;
+
+                case "--iter":
+                    if (!int.TryParse(args[++i], out maxIter) || maxIter <= 0)
+                    {
+                        WriteLine("Error: --iter must be a positive integer.");
+                        ShowHelp();
+                    }
+                    break;
+
+                case "--xmin":
+                    xmin = double.Parse(args[++i], CultureInfo.InvariantCulture);
+                    break;
+
+                case "--xmax":
+                    xmax = double.Parse(args[++i], CultureInfo.InvariantCulture);
+                    break;
+
+                case "--ymin":
+                    ymin = double.Parse(args[++i], CultureInfo.InvariantCulture);
+                    break;
+
+                case "--ymax":
+                    ymax = double.Parse(args[++i], CultureInfo.InvariantCulture);
+                    break;
+
+                case "--out":
+                    fileOutPath = Path.Combine(args[++i], "fractal.png");
+                    break;
+
+                default:
+                    WriteLine($"Unknown argument: {args[i]}");
+                    ShowHelp();
+                    return;
+            }
         }
 
-        // Required args
-        expression_input = args[0];
+        // Required flags
         if (string.IsNullOrWhiteSpace(expression_input))
         {
-            WriteLine("Error: <expression> cannot be empty.");
+            WriteLine("Error: --expr is required.");
             ShowHelp();
         }
 
         if (!expression_input.Contains("z"))
         {
-            WriteLine("Error: expression must contain variable 'z'.");
+            WriteLine("Error: expression must be a function of 'z'.");
             ShowHelp();
         }
 
-
-        resInput = args[1];
-        if (!TryParseResolution(resInput, out int width, out int height))
+        if (width <= 0 || height <= 0)
         {
-            WriteLine("Error: resolution must be in WIDTHxHEIGHT format, e.g. 1920x1080");
+            WriteLine("Error: --res WIDTHxHEIGHT is required.");
             ShowHelp();
         }
 
-        if (!int.TryParse(args[2], out maxIter) || maxIter <= 0)
+        if (maxIter <= 0)
         {
-            WriteLine("Error: <maxIteration> must be a positive integer.");
+            WriteLine("Error: --iter is required.");
             ShowHelp();
         }
 
-        // Optional range
-        if (args.Length == 7)
+        // Output path default
+        if (string.IsNullOrEmpty(fileOutPath))
         {
-            if (!double.TryParse(args[3], NumberStyles.Float, CultureInfo.InvariantCulture, out xmin) ||
-                !double.TryParse(args[4], NumberStyles.Float, CultureInfo.InvariantCulture, out xmax) ||
-                !double.TryParse(args[5], NumberStyles.Float, CultureInfo.InvariantCulture, out ymin) ||
-                !double.TryParse(args[6], NumberStyles.Float, CultureInfo.InvariantCulture, out ymax))
-            {
-                WriteLine("Error: xmin xmax ymin ymax must be valid decimal numbers.");
-                ShowHelp();
-            }
-
+            fileOutPath = Path.Combine(Directory.GetCurrentDirectory(), "fractal.png");
         }
-        else if (args.Length != 3)
-        {
-            ShowHelp();
-        }
-
 
 
         string plain = LatexConverter.LatexToPlain(expression_input);
@@ -201,11 +231,24 @@ class Program
         WriteLine($"Rendering took {sw.ElapsedMilliseconds / 1000} s");
 
         WriteLine("Saving image...");
-        image.Save("fractal.png");
-        image.Dispose();
-        WriteLine("Saved as fractal.png, opening it now...");
 
-        Process.Start(new ProcessStartInfo("fractal.png") { UseShellExecute = true });
+        string path = string.IsNullOrEmpty(fileOutPath)
+            ? Path.Combine(Directory.GetCurrentDirectory(), "fractal.png")
+            : fileOutPath;
+
+        // Ensure directory exists
+        string? dir = Path.GetDirectoryName(path);
+        if (!string.IsNullOrEmpty(dir) && !Directory.Exists(dir))
+        {
+            WriteLine("Target directory do not exists. Creating it now...");
+            Directory.CreateDirectory(dir);
+        }
+
+        image.Save(path);
+        image.Dispose();
+
+        WriteLine($"Saved at {path}, opening it now...");
+        Process.Start(new ProcessStartInfo(path) { UseShellExecute = true });
 
         WriteLine($"Program finished in {sw.ElapsedMilliseconds / 1000} s, exiting...");
     }
@@ -213,37 +256,47 @@ class Program
     private static void ShowHelp()
     {
         WriteLine("Usage:");
-        WriteLine("  NewtonV2.exe \"<expression>\" <resolution> <maxIteration> [xmin xmax ymin ymax]");
+        WriteLine("  NewtonV2.exe --expr \"<expression>\" --res <WIDTHxHEIGHT> --iter <maxIteration> [options]");
         WriteLine();
-        WriteLine("Arguments:");
-        WriteLine("  <expression>     A valid LaTeX-style complex expression in variable 'z'.");
+        WriteLine("Required arguments:");
+        WriteLine("  --expr <expression>");
+        WriteLine("                   A valid LaTeX-style complex expression in variable 'z'.");
         WriteLine("                   Example: \"(z^3)-1\", \"sin(z) + z^2\", \"(z^5) - (3*z) + 1\"");
         WriteLine();
-        WriteLine("  <resolution>     Output image size in WIDTHxHEIGHT format.");
+        WriteLine("  --res <WIDTHxHEIGHT>");
+        WriteLine("                   Output image resolution.");
         WriteLine("                   Example: 1920x1080, 3840x2160, 800x800");
         WriteLine();
-        WriteLine("  <maxIteration>   Maximum Newton iterations per pixel.");
+        WriteLine("  --iter <maxIteration>");
+        WriteLine("                   Maximum Newton iterations per pixel.");
         WriteLine("                   Higher values give smoother boundaries but increase render time.");
         WriteLine();
-        WriteLine("Optional range arguments:");
-        WriteLine("  xmin xmax ymin ymax");
-        WriteLine("                   Defines the complex-plane viewport.");
+        WriteLine("Optional viewport arguments:");
+        WriteLine("  --xmin <value>   Minimum real-axis value (default: -2)");
+        WriteLine("  --xmax <value>   Maximum real-axis value (default:  2)");
+        WriteLine("  --ymin <value>   Minimum imaginary-axis value (default: -2)");
+        WriteLine("  --ymax <value>   Maximum imaginary-axis value (default:  2)");
         WriteLine("                   All values may be integers or decimals (e.g., -1.5, 2.5).");
-        WriteLine("                   Defaults to: -2 2 -2 2");
-        WriteLine("                   Example: -4 4 -4 4");
+        WriteLine();
+        WriteLine("Optional output argument:");
+        WriteLine("  --out <directory>");
+        WriteLine("                   Directory where the output image will be saved.");
+        WriteLine(@"                   Defaults to: <AppDir>\fractal.png");
+        WriteLine(@"                   Example: --out C:\Users\username\Documents");
         WriteLine();
         WriteLine("Examples:");
         WriteLine("  Use default range:");
-        WriteLine("    NewtonV2.exe \"(z^3)-1\" 3840x2160 20");
+        WriteLine("    NewtonV2.exe --expr \"(z^3)-1\" --res 3840x2160 --iter 20");
         WriteLine();
         WriteLine("  Use custom range:");
-        WriteLine("    NewtonV2.exe \"(z^3)-1\" 3840x2160 20 -4 4 -4 4");
+        WriteLine("    NewtonV2.exe --expr \"(z^3)-1\" --res 3840x2160 --iter 20 --xmin -4 --xmax 4 --ymin -4 --ymax 4");
+        WriteLine();
+        WriteLine("  Custom output directory:");
+        WriteLine("    NewtonV2.exe --expr \"(z^3)-1\" --res 1920x1080 --iter 30 --out D:\\Temp");
         WriteLine();
 
         Environment.Exit(0);
     }
-
-
 
     static (Complex? root, double smooth) FindRoot(
         Func<Complex, Complex> f,
@@ -300,6 +353,7 @@ class Program
         return knownRoots.Count - 1;
     }
 
+    // I know it could be simpler, smarter and better but who cares if it works right?
     static bool TryParseResolution(string input, out int width, out int height)
     {
         width = height = 0;

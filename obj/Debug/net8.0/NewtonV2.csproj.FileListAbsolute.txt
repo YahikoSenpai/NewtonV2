@@ -20,3 +20,4 @@ D:\Local_projects\NewtonV2\bin\Debug\net8.0\HonkSharp.dll
 D:\Local_projects\NewtonV2\bin\Debug\net8.0\Numbers.dll
 D:\Local_projects\NewtonV2\obj\Debug\net8.0\NewtonV2.csproj.Up2Date
 D:\Local_projects\NewtonV2\bin\Debug\net8.0\SixLabors.ImageSharp.dll
+D:\Local_projects\NewtonV2\obj\Debug\net8.0\NewtonV2.sourcelink.json
