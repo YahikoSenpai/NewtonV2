@@ -1,14 +1,17 @@
 # NewtonV2 — Newton Fractal Renderer
 
 ## Usage
-NewtonV2.exe `"<expression>"` `<resolution>` `<maxIteration>` [xmin xmax ymin ymax]
+
+```
+NewtonV2.exe --expr "<expression>" --res <WIDTHxHEIGHT> --iter <maxIteration> [options]
+```
 
 ---
 
-## Arguments
+## Required Arguments
 
-### `<expression>`
-A valid LaTeX-style complex expression in the variable **`z`**.
+### `--expr <expression>`
+A valid LaTeX‑style complex expression in the variable **`z`**.
 
 Examples:
 - `(z^3)-1`
@@ -17,8 +20,8 @@ Examples:
 
 ---
 
-### `<resolution>`
-Output image size in `WIDTHxHEIGHT` format.
+### `--res <WIDTHxHEIGHT>`
+Output image resolution.
 
 Examples:
 - `1920x1080`
@@ -27,30 +30,69 @@ Examples:
 
 ---
 
-### `<maxIteration>`
+### `--iter <maxIteration>`
 Maximum Newton iterations per pixel.
 
 Higher values produce smoother boundaries but increase render time.
 
 ---
 
-## Optional Range Arguments
-xmin xmax ymin ymax
+## Optional Viewport Arguments
 
-Defines the complex-plane viewport.
+These define the complex‑plane region to render.
 
-- All values may be integers or decimals (e.g., `-1.5`, `2.5`)
-- Defaults to: `-2 2 -2 2`
+```
+--xmin <value>
+--xmax <value>
+--ymin <value>
+--ymax <value>
+```
+
+Defaults:
+- `--xmin -2`
+- `--xmax 2`
+- `--ymin -2`
+- `--ymax 2`
+
+Values may be integers or decimals (e.g., `-1.5`, `2.5`).
 
 Example:
--4 4 -4 4
+```
+--xmin -4 --xmax 4 --ymin -4 --ymax 4
+```
+
+---
+
+## Optional Output Argument
+
+### `--out <directory>`
+Directory where the output image will be saved.
+
+Defaults to:
+```
+<AppDir>\fractal.png
+```
+
+Example:
+```
+--out C:\Users\username\Documents
+```
 
 ---
 
 ## Examples
 
 ### Use default range
-NewtonV2.exe "(z^3)-1" 3840x2160 20
+```
+NewtonV2.exe --expr "(z^3)-1" --res 3840x2160 --iter 20
+```
 
 ### Use custom range
-NewtonV2.exe "(z^3)-1" 3840x2160 20 -4 4 -4 4
+```
+NewtonV2.exe --expr "(z^3)-1" --res 3840x2160 --iter 20 --xmin -4 --xmax 4 --ymin -4 --ymax 4
+```
+
+### Custom output directory
+```
+NewtonV2.exe --expr "(z^3)-1" --res 1920x1080 --iter 30 --out D:\Temp
+```
