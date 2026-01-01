@@ -19,6 +19,7 @@ class Program
         double ymin = -2, ymax = 2;
         string fileOutPath = "";
         int width = 0, height = 0, maxIter = 5;
+        bool darkTheme = false;
 
         // Parse flags
         for (int i = 0; i < args.Length; i++)
@@ -63,6 +64,10 @@ class Program
 
                 case "--out":
                     fileOutPath = Path.Combine(args[++i], "fractal.png");
+                    break;
+
+                case "--dark":
+                    darkTheme = true;
                     break;
 
                 default:
@@ -147,17 +152,46 @@ class Program
         WriteLine("Rendering fractal...");
 
         // Simple color palette (extendable)
-        Rgba32[] palette = new Rgba32[]
-        {
-            new Rgba32(255, 80, 80),   // red
-            new Rgba32(80, 255, 80),   // green
-            new Rgba32(80, 80, 255),   // blue
-            new Rgba32(255, 255, 80),  // yellow
-            new Rgba32(255, 80, 255),  // magenta
-            new Rgba32(80, 255, 255),  // cyan
-            new Rgba32(255, 255, 255), // white
-        };
-        Rgba32 divergeColor = new Rgba32(0, 0, 0); // black
+        Rgba32[] palette =
+        [
+            new Rgba32(255, 80, 80, 255),    // red
+            new Rgba32(80, 255, 80, 255),    // green
+            new Rgba32(80, 80, 255, 255),    // blue
+            new Rgba32(255, 255, 80, 255),   // yellow
+            new Rgba32(255, 80, 255, 255),   // magenta
+            new Rgba32(80, 255, 255, 255),   // cyan
+            new Rgba32(255, 255, 255, 255),  // white
+            new Rgba32(255, 160, 80, 255),   // orange
+            new Rgba32(160, 255, 80, 255),   // lime
+            new Rgba32(80, 255, 160, 255),   // aquamarine
+            new Rgba32(80, 160, 255, 255),   // sky blue
+            new Rgba32(160, 80, 255, 255),   // violet
+            new Rgba32(255, 80, 160, 255),   // hot pink
+            new Rgba32(255, 160, 255, 255),  // light magenta
+            new Rgba32(160, 160, 255, 255)  // periwinkle
+        ];
+        Rgba32 divergeColor = new(0, 0, 0); // black
+
+        // Simple darkcolor palette (extendable)
+        Rgba32[] darkPalette =
+        [
+            new Rgba32(0, 180, 255, 100),    // electric cyan
+            new Rgba32(80, 0, 200, 100),     // deep violet
+            new Rgba32(160, 0, 255, 100),    // cosmic magenta
+            new Rgba32(0, 100, 160, 100),    // rich blue
+            new Rgba32(60, 0, 120, 100),     // indigo shadow
+            new Rgba32(30, 30, 60, 100),     // near-black blue
+            new Rgba32(200, 200, 255, 100),  // pale highlight
+            new Rgba32(0, 140, 200, 100),    // deep aqua
+            new Rgba32(40, 0, 160, 100),     // royal violet
+            new Rgba32(120, 0, 200, 100),    // purple flare
+            new Rgba32(0, 60, 120, 100),     // midnight blue
+            new Rgba32(20, 20, 80, 100),     // navy shadow
+            new Rgba32(100, 40, 160, 100),   // plum
+            new Rgba32(0, 160, 220, 100),    // bright teal
+            new Rgba32(150, 80, 220, 100)    // lavender glow
+        ];
+        Rgba32 darkDivergeColor = new(200, 200, 200); // grey
 
         sw = Stopwatch.StartNew();
 
@@ -199,31 +233,42 @@ class Program
                 // Smooth shading
                 if (rootIndex == -1)
                 {
-                    image[px, py] = divergeColor;
+                    image[px, py] = darkTheme ? darkDivergeColor : divergeColor;
                 }
                 else
                 {
                     // Base color from palette
-                    var baseColor = palette[rootIndex % palette.Length];
+                    var baseColor = darkTheme ? darkPalette[rootIndex % darkPalette.Length] : palette[rootIndex % palette.Length];
 
                     if (!double.IsFinite(smooth)) smooth = 0;
                     double t = Math.Clamp(smooth / maxIter, 0.0, 1.0);
 
                     // Gentle gamma curve (keeps midtones intact)
-                    double gamma = 1.1;
+                    double gamma = darkTheme ? 0.6 : 1.1;
                     t = Math.Pow(t, gamma);
 
-                    // Create a softened highlight (not pure white)
-                    byte hr = (byte)(baseColor.R + 20); if (hr > 255) hr = 255;
-                    byte hg = (byte)(baseColor.G + 20); if (hg > 255) hg = 255;
-                    byte hb = (byte)(baseColor.B + 20); if (hb > 255) hb = 255;
-
+                    byte hr, hg, hb, a = 255;
+                    // Create a softened highlight
+                    if (!darkTheme)
+                    {
+                        hr = (byte)(baseColor.R + 20); if (hr > 255) hr = 255;
+                        hg = (byte)(baseColor.G + 20); if (hg > 255) hg = 255;
+                        hb = (byte)(baseColor.B + 20); if (hb > 255) hb = 255;
+                    }
+                    else {
+                        hr = (byte)(baseColor.R + (255 - baseColor.R) * 0.2);
+                        hg = (byte)(baseColor.G + (255 - baseColor.G) * 0.2);
+                        hb = (byte)(baseColor.B + (255 - baseColor.B) * 0.2);
+                        a = 100;
+                    }
+                    
                     // Blend base → highlight
                     byte r = (byte)(baseColor.R * (1 - t) + hr * t);
                     byte g = (byte)(baseColor.G * (1 - t) + hg * t);
                     byte b = (byte)(baseColor.B * (1 - t) + hb * t);
+                    
 
-                    image[px, py] = new Rgba32(r, g, b);
+                    image[px, py] = new Rgba32(r, g, b, a);
                 }
             }
         });
@@ -280,9 +325,12 @@ class Program
         WriteLine();
         WriteLine("Optional output argument:");
         WriteLine("  --out <directory>");
-        WriteLine("                   Directory where the output image will be saved.");
+        WriteLine("                    Directory where the output image will be saved.");
         WriteLine(@"                   Defaults to: <AppDir>\fractal.png");
         WriteLine(@"                   Example: --out C:\Users\username\Documents");
+        WriteLine();
+        WriteLine("  --dark");
+        WriteLine("                    Changes colour-scheme to darker tones.");
         WriteLine();
         WriteLine("Examples:");
         WriteLine("  Use default range:");
@@ -291,8 +339,8 @@ class Program
         WriteLine("  Use custom range:");
         WriteLine("    NewtonV2.exe --expr \"(z^3)-1\" --res 3840x2160 --iter 20 --xmin -4 --xmax 4 --ymin -4 --ymax 4");
         WriteLine();
-        WriteLine("  Custom output directory:");
-        WriteLine("    NewtonV2.exe --expr \"(z^3)-1\" --res 1920x1080 --iter 30 --out D:\\Temp");
+        WriteLine("  Custom output directory with dark mode:");
+        WriteLine("    NewtonV2.exe --expr \"(z^3)-1\" --res 1920x1080 --iter 30 --out D:\\Temp --dark");
         WriteLine();
 
         Environment.Exit(0);
